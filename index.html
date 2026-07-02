@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle do Exaustor Mundial</title>
+    <!-- Ajustado o título para o dispositivo 03 -->
+    <title>Controle do Acionamento 03</title>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#222222">
@@ -12,9 +13,9 @@
     <link class="apple-touch-icon" href="logogiglio.png">
 
     <script>
-        // Registra o Service Worker com parâmetro de versão para forçar a atualização do cache
+        // Registra o Service Worker para permitir a instalação no celular
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js?v=3')
+            navigator.serviceWorker.register('sw.js')
                 .then(() => console.log("Service Worker Registrado com Sucesso!"))
                 .catch(err => console.log("Erro ao registrar o Service Worker:", err));
         }
@@ -104,13 +105,14 @@
    <img src="logogiglio.png" alt="Logo Residencial" class="logo-topo">
 
     <h1>RESIDENCIAL COMENDADOR SILVIO GIGLIO</h1>
-    <h1>Torre 03</h1>
+    <h1>Torre 02</h1>
     
-    <p>O status real do exaustor é: <span id="status-texto" style="font-weight: bold; font-size: 22px;">Carregando...</span></p>
+    <!-- Ajustado o texto de status para o dispositivo 03 -->
+    <p>O status real do dispositivo 03 é: <span id="status-texto" style="font-weight: bold; font-size: 22px;">Carregando...</span></p>
     
     <div class="container-botoes">
-        <button class="btn btn-ligar" onclick="ligarExaustor()">LIGAR</button>
-        <button class="btn btn-desligar" onclick="desligarExaustor()">DESLIGAR</button>
+        <button class="btn btn-ligar" onclick="ligarDispositivo()">LIGAR</button>
+        <button class="btn btn-desligar" onclick="desligarDispositivo()">DESLIGAR</button>
     </div>
 
     <div class="container-lampada">
@@ -119,7 +121,7 @@
     </div>
 
     <script>
-        // Configuração extraída do seu painel do Firebase
+        // Configuração mantida do seu Firebase original
         const firebaseConfig = {
             apiKey: "AIzaSyD0EuvxA9nmbB-D3Wls4pt9Bv5lB88Dd1g",
             authDomain: "acionamento-exaustor.firebaseapp.com",
@@ -135,7 +137,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // MODIFICADO: Agora monitora o status correto da Torre 03
+        // ALTERADO: Agora escuta o status_acionamento_03
         db.ref('/status_acionamento_03').on('value', (snapshot) => {
             const statusSensor = snapshot.val();
             const texto = document.getElementById('status-texto');
@@ -159,13 +161,13 @@
             }
         });
 
-        // MODIFICADO: Envia o valor 1 para a chave correta (lampada_03)
-        function ligarExaustor() {
+        // ALTERADO: Envia o comando para 'lampada_03'
+        function ligarDispositivo() {
             db.ref('/').update({ lampada_03: 1 });
         }
 
-        // MODIFICADO: Envia o valor 0 para a chave correta (lampada_03)
-        function desligarExaustor() {
+        // ALTERADO: Envia o comando para 'lampada_03'
+        function desligarDispositivo() {
             db.ref('/').update({ lampada_03: 0 });
         }
     </script>
