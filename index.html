@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle do Exaustor Mundial</title>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#222222">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="logogiglio.png">
+
+    <script>
+        // Registra o Service Worker para permitir a instalação no celular
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log("Service Worker Registrado com Sucesso!"))
+                .catch(err => console.log("Erro ao registrar o Service Worker:", err));
+        }
+    </script>
+
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            background: #222; 
+            color: #fff; 
+            padding-top: 40px; 
+        }
+        
+        /* Estilo da Imagem no Topo */
+        .logo-topo {
+            display: block;
+            margin: 0 auto 20px auto; 
+            max-width: 200px;        
+            height: auto;
+        }
+        
+        /* Estilo dos Botões */
+        .container-botoes {
+            margin: 20px 0;
+        }
+        .btn { 
+            padding: 15px 35px; 
+            font-size: 20px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 8px; 
+            transition: 0.3s; 
+            font-weight: bold;
+            margin: 0 10px;
+        }
+        .btn-ligar {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-ligar:hover {
+            box-shadow: 0 0 15px #4CAF50;
+        }
+        .btn-desligar {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-desligar:hover {
+            box-shadow: 0 0 15px #f44336;
+        }
+
+        /* Estilo Visual da Lâmpada */
+        .container-lampada {
+            margin-top: 40px;
+            display: inline-block;
+        }
+        .lampada {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #444;
+            border: 4px solid #fff;
+            margin: 0 auto;
+            transition: all 0.4s ease;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        /* Estado da Lâmpada quando estiver Acesa */
+        .lampada.acesa {
+            background-color: #ffeb3b;
+            box-shadow: 0 0 50px #ffeb3b, inset 0 0 10px #fff;
+            border-color: #ffeb3b;
+        }
+        .suporte-lampada {
+            width: 40px;
+            height: 20px;
+            background-color: #777;
+            margin: 0 auto;
+            border-radius: 0 0 5px 5px;
+        }
+    </style>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+
+   <img src="logogiglio.png" alt="Logo Residencial" class="logo-topo">
+
+    <h1>RESIDENCIAL COMENDADOR SILVIO GIGLIO</h1>
+    
+    <p>O status real do exaustor é: <span id="status-texto" style="font-weight: bold; font-size: 22px;">Carregando...</span></p>
+    
+    <div class="container-botoes">
+        <button class="btn btn-ligar" onclick="ligarExaustor()">LIGAR</button>
+        <button class="btn btn-desligar" onclick="desligarExaustor()">DESLIGAR</button>
+    </div>
+
+    <div class="container-lampada">
+        <div id="lampada-visual" class="lampada"></div>
+        <div class="suporte-lampada"></div>
+    </div>
+
+    <script>
+        // Configuração extraída do seu painel do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyD0EuvxA9nmbB-D3Wls4pt9Bv5lB88Dd1g",
+            authDomain: "acionamento-exaustor.firebaseapp.com",
+            projectId: "acionamento-exaustor",
+            storageBucket: "acionamento-exaustor.firebasestorage.app",
+            messagingSenderId: "744403714348",
+            appId: "1:744403714348:web:158cfd90721911f846ec89",
+            measurementId: "G-VVRLK5C51V",
+            databaseURL: "https://acionamento-exaustor-default-rtdb.firebaseio.com/"
+        };
+        
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Escuta o feedback real enviado pelo ESP32 (/status_exaustor)
+        db.ref('/status_exaustor').on('value', (snapshot) => {
+            const statusSensor = snapshot.val();
+            const texto = document.getElementById('status-texto');
+            const lampadaVisual = document.getElementById('lampada-visual');
+
+            if (!statusSensor) {
+                texto.innerText = "SEM SINAL";
+                texto.style.color = "#777";
+                lampadaVisual.className = "lampada";
+                return;
+            }
+
+            // Tratamento lógico seguro (ignora problemas de acentuação do caractere 'ã')
+            if (statusSensor.trim() === "funcionando") {
+                texto.innerText = "FUNCIONANDO";
+                texto.style.color = "#4CAF50";       
+                lampadaVisual.className = "lampada acesa"; 
+            } else {
+                texto.innerText = "NÃO FUNCIONANDO";
+                texto.style.color = "#f44336";       
+                lampadaVisual.className = "lampada";       
+            }
+        });
+
+        // Função do botão LIGAR: Envia o valor 1 para a nuvem
+        function ligarExaustor() {
+            db.ref('/').update({ lampada: 1 });
+        }
+
+        // Função do botão DESLIGAR: Envia o valor 0 para a nuvem
+        function desligarExaustor() {
+            db.ref('/').update({ lampada: 0 });
+        }
+    </script>
+</body>
+</html>
