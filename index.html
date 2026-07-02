@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#222222">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="logogiglio.png">
+    <link class="apple-touch-icon" href="logogiglio.png">
 
     <script>
         // Registra o Service Worker para permitir a instalação no celular
@@ -135,8 +135,8 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Escuta o feedback real enviado pelo ESP32 (/status_exaustor)
-        db.ref('/status_exaustor').on('value', (snapshot) => {
+        // CORREÇÃO: Escuta o feedback real da Torre 03 (/status_acionamento_03)
+        db.ref('/status_acionamento_03').on('value', (snapshot) => {
             const statusSensor = snapshot.val();
             const texto = document.getElementById('status-texto');
             const lampadaVisual = document.getElementById('lampada-visual');
@@ -160,14 +160,14 @@
             }
         });
 
-        // Função do botão LIGAR: Envia o valor 1 para a nuvem
+        // CORREÇÃO: Função do botão LIGAR envia para 'lampada_03'
         function ligarExaustor() {
-            db.ref('/').update({ lampada: 1 });
+            db.ref('/').update({ lampada_03: 1 });
         }
 
-        // Função do botão DESLIGAR: Envia o valor 0 para a nuvem
+        // CORREÇÃO: Função do botão DESLIGAR envia para 'lampada_03'
         function desligarExaustor() {
-            db.ref('/').update({ lampada: 0 });
+            db.ref('/').update({ lampada_03: 0 });
         }
     </script>
 </body>
