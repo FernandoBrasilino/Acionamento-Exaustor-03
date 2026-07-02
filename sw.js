@@ -1,4 +1,4 @@
-const CACHE_NAME = 'exaustor-cache-v1';
+const CACHE_NAME = 'exaustor-cache-torre03-v1';
 const urlsToCache = ['./', './index.html', './manifest.json', './logogiglio.png'];
 
 self.addEventListener('install', event => {
