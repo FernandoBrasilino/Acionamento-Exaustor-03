@@ -12,9 +12,9 @@
     <link class="apple-touch-icon" href="logogiglio.png">
 
     <script>
-        // Registra o Service Worker para permitir a instalação no celular
+        // Registra o Service Worker com parâmetro de versão para forçar a atualização do cache
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
+            navigator.serviceWorker.register('sw.js?v=3')
                 .then(() => console.log("Service Worker Registrado com Sucesso!"))
                 .catch(err => console.log("Erro ao registrar o Service Worker:", err));
         }
@@ -135,7 +135,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // CORREÇÃO: Escuta o feedback real da Torre 03 (/status_acionamento_03)
+        // MODIFICADO: Agora monitora o status correto da Torre 03
         db.ref('/status_acionamento_03').on('value', (snapshot) => {
             const statusSensor = snapshot.val();
             const texto = document.getElementById('status-texto');
@@ -148,7 +148,6 @@
                 return;
             }
 
-            // Tratamento lógico seguro (ignora problemas de acentuação do caractere 'ã')
             if (statusSensor.trim() === "funcionando") {
                 texto.innerText = "FUNCIONANDO";
                 texto.style.color = "#4CAF50";       
@@ -160,12 +159,12 @@
             }
         });
 
-        // CORREÇÃO: Função do botão LIGAR envia para 'lampada_03'
+        // MODIFICADO: Envia o valor 1 para a chave correta (lampada_03)
         function ligarExaustor() {
             db.ref('/').update({ lampada_03: 1 });
         }
 
-        // CORREÇÃO: Função do botão DESLIGAR envia para 'lampada_03'
+        // MODIFICADO: Envia o valor 0 para a chave correta (lampada_03)
         function desligarExaustor() {
             db.ref('/').update({ lampada_03: 0 });
         }
